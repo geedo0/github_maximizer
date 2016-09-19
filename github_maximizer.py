@@ -2,42 +2,60 @@
 from subprocess import call
 import argparse
 import datetime as dt
+import getopt
+import github
 import numpy as np
 import os
 import sys
-import getopt
 
-'''
-TODO
--Refactor things for future features
--Some kind of cool code generation
--Some type of commit message generation
--It would be neat to use some machine learning to generate this stuff
--Make a cool README.md file
--Package it nicely, learn how to automatically fetch dependencies and stuff
--Add code to initialize and push git repositories
--Check assertion that git is setup correctly
--Profiles for selecting the distribution. Night owl vs office worker
--Improve distribution of commit times
--Automatically determine how to distribute commits
--Service that constantly pushes to Github
--Use Github API to create repositories
-'''
+debug = True
 
-RANGE = 365
-widgets = ['foo', 'bar', 'baz']
+if debug:
+  import configparser
+  conf = configparser.ConfigParser()
+  conf.read('config.ini')
+  USER = conf.get('development', 'username')
+  PASS = conf.get('development', 'password')
+
+def create_github_repository(username, password, repo_name):
+  try:
+    g = github.Github(username, password)
+    u = g.get_user()
+    if debug:
+      # Delete the repo if it exists
+      try:
+        u.get_repo(repo_name).delete()
+      except Exception:
+        pass
+    repository = u.create_repo(repo_name)
+  except github.GithubException as e:
+    print(e)
+    return None
+  return repository
 
 def main():
   parser = argparse.ArgumentParser(description='This module automatically '
   'maximizes your Github contribution graph.')
-  parser.add_argument('-n', '--repo-name', default='ocean', metavar='REPO_NAME',
-    dest='repo_name', help='Specify the name of the repository to be created.')
   parser.add_argument('-d', '--days', default=365, type=int, metavar='DAYS',
     dest='days', help='Specify the number of days (from today) to commit to.')
-  args = parser.parse_args()
-  print(args)
-  sys.exit()
+  parser.add_argument('-n', '--repo-name', default='ocean', metavar='REPO_NAME',
+    dest='repo_name', help='Specify the name of the repository to be created.')
+  parser.add_argument('-u', '--username', required=True, metavar='USERNAME',
+    dest='username', help='Your Github username')
+  parser.add_argument('-p', '--password', required=True, metavar='PASSWORD',
+    dest='password', help='Your Github password')
+  if debug:
+    args = parser.parse_args(['-u', USER, '-p', PASS])
+  else:
+    args = parser.parse_args()
 
+  repository = create_github_repository(args.username, args.password,
+    args.repo_name)
+  if repository is None:
+    print('Could not create repository on Github')
+    sys.exit(1)
+
+  sys.exit()
 
   os.chdir('/home/geedo/foo')
   # Use a poisson distribution for an organic feeling
