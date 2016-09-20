@@ -1,9 +1,8 @@
 #!/usr/bin/python3
+from github import Github
+from numpy import random
 import argparse
 import datetime as dt
-import getopt
-import github
-import numpy as np
 import os
 import subprocess
 import sys
@@ -36,7 +35,7 @@ def check_git_installation():
 
 def create_github_repository(username, password, repo_name):
     try:
-        g = github.Github(username, password)
+        g = Github(username, password)
         u = g.get_user()
         if debug:
             # Delete the repo if it exists
@@ -45,7 +44,7 @@ def create_github_repository(username, password, repo_name):
             except Exception:
                 pass
         repository = u.create_repo(repo_name)
-    except github.GithubException as e:
+    except Exception as e:
         print(e)
         return None
     return repository
@@ -81,10 +80,10 @@ def get_commit_schedule(start, end):
         # if the day is a weekday use a larger distribution
         # This has the effect of following a weekly work schedule
         if commit_date.weekday() <= 4:
-            num_commits = np.random.poisson(4)
+            num_commits = random.poisson(4)
         else:
-            num_commits = np.random.poisson(1)
-        commit_times = np.random.randint(0, 60 * 60 * 24 - 1, num_commits)
+            num_commits = random.poisson(1)
+        commit_times = random.randint(0, 60 * 60 * 24 - 1, num_commits)
         commit_times.sort()
         for seconds in commit_times:
             commit_time = dt.datetime.combine(commit_date, dt.time())
@@ -149,7 +148,7 @@ def main():
         with open('./README', 'a') as f:
             f.write(str(commit) + '\n')
         subprocess.call(['git', 'add', 'README'])
-        message = "Implements a {:s}".format(np.random.choice(nouns))
+        message = "Implements a {:s}".format(random.choice(nouns))
         date_arg = "--date=\"{:s}\"".format(str(commit))
         commit_args = ['git', 'commit', '-m', message, date_arg]
         if args.author is not None:
