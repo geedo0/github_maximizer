@@ -8,6 +8,13 @@ import os
 import subprocess
 import sys
 
+'''
+TODO
+-Be able to continuous contribute as a service
+-README - Show usage and explain how it works
+-setup.py - Install the pre-requisites
+'''
+
 debug = False
 
 if debug:
@@ -61,13 +68,18 @@ def initialize_local_repository(repo_path):
     return False
   return True
 
-def get_commit_schedule(start, end, average=1):
+def get_commit_schedule(start, end):
   out = []
   # Use a poisson distribution for an organic feeling
   days = (end - start).days
-  commit_distribution = np.random.poisson(average, days)
-  for day_offset, num_commits in enumerate(commit_distribution):
+  for day_offset in range(0, days):
     commit_date = start + dt.timedelta(days=day_offset)
+    # if the day is a weekday use a larger distribution
+    # This has the effect of following a weekly work schedule
+    if commit_date.weekday() <= 4:
+      num_commits = np.random.poisson(4)
+    else:
+      num_commits = np.random.poisson(1)
     commit_times = np.random.randint(0, 60*60*24 - 1, num_commits)
     commit_times.sort()
     for seconds in commit_times:
@@ -116,7 +128,7 @@ def main():
   end_date = dt.date.today()
   start_date = end_date - dt.timedelta(days=args.days)
 
-  commit_times = get_commit_schedule(start_date, end_date, 2)
+  commit_times = get_commit_schedule(start_date, end_date)
   os.chdir(repo_path)
   nouns = ['Airbus', 'Dollar', 'Flintlock', 'Focus', 'Love', 'Orchard', 'Rat',
   'Trolley', 'Zampone', 'Zoology']
