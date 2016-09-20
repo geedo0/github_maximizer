@@ -7,13 +7,6 @@ import os
 import subprocess
 import sys
 
-'''
-TODO
--Be able to continuous contribute as a service
--README - Show usage and explain how it works
--setup.py - Install the pre-requisites
-'''
-
 debug = False
 
 if debug:
@@ -23,7 +16,6 @@ if debug:
     USER = conf.get('development', 'username')
     PASS = conf.get('development', 'password')
     AUTH = conf.get('development', 'author')
-
 
 def check_git_installation():
     try:
