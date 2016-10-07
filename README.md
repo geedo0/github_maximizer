@@ -12,15 +12,23 @@ The purpose of this project is to manipulate the user's contribution graph in a 
 * Git
 
 ## Quick Start
-These commands will install github_maximizer and its prerequisites. Then when you run the script it will create the repository specified by -n and contribute a year's worth of commits to the Github account specified by the -u parameter.
+These commands will install github_maximizer and its prerequisites. Then when you run the script it will create the repository specified by -n and contribute a year's worth of commits to the Github account specified by the config file.
 ```
 git clone https://github.com/geedo0/github_maximizer.git
 cd github_maximizer
 pip install -r requirements.txt
-./github_maximizer.py -n 'stateless_info_client' -u geedo0 -p Password1!
+./github_maximizer.py -n 'stateless_info_client' -c sample_config.ini
+```
+
+## Cron Mode
+After generating a year's worth of contributions, it may be worthwhile to run the script as a daily cron job with '-d 1'. That way, the script will randomly generate a series of commits and push them up for you each day. The result is an unbroken chain of contributions for your profile.
+```
+# crontab
+# m h  dom mon dow   command
+0 0 * * * * /scripts/github_maximizer/github_maximizer.py -n stateless_info_client -c /scripts/github_maximizer/sample_config.ini -d 1
 ```
 
 ## Notes
 * This uses a Poisson distribution for determining how many commits to make on any given day. In general, it will look like you commit more often on weekdays than on weekends.
-* Your password is passed as a command line parameter. That means it will be stored in plaintext to your bash history, make sure to wipe it after.
+* Your password is stored in plain text and is used without much concern for security by this script. Make sure you read the code and understand your risks.
 * The commits generated are obviously fake, so if you care about that mark the repository as private and set Github to count private contributions.
