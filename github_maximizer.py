@@ -8,6 +8,7 @@ import os
 import subprocess
 import sys
 
+
 def check_git_installation():
     try:
         out = subprocess.check_output(['git', '--version'])
@@ -44,7 +45,8 @@ def initialize_local_repository(repo_path):
     try:
         subprocess.call(['git', 'init'], cwd=repo_path)
         subprocess.call(['git', 'add', 'README'], cwd=repo_path)
-        subprocess.call(['git', 'commit', '-m', 'Initial Commit'], cwd=repo_path)
+        subprocess.call(
+            ['git', 'commit', '-m', 'Initial Commit'], cwd=repo_path)
     except Exception as e:
         print(e)
         return False
@@ -96,7 +98,7 @@ def get_commit_schedule(start, end):
     out = []
     # Use a poisson distribution for an organic feeling
     days = (end - start).days
-    for day_offset in range(0, days):
+    for day_offset in range(0, days + 1):
         commit_date = start + dt.timedelta(days=day_offset)
         # if the day is a weekday use a larger distribution
         # This has the effect of following a weekly work schedule
@@ -151,8 +153,7 @@ def main():
     try:
         repository = github_user.get_repo(args.repo_name)
     except github.UnknownObjectException as e:
-        print('Repository {:s} does not exist. Need to initialize repository.'
-            .format(args.repo_name))
+        print('Repository does not exist. Need to initialize.')
         repository = None
     except github.BadCredentialsException as e:
         print('Credentials for {:s} are invalid.'.format(username))
@@ -163,7 +164,7 @@ def main():
 
     # This gets the directory of github_maximer.py
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    
+
     work_path = os.path.join(dir_path, 'work')
     repo_path = os.path.join(work_path, args.repo_name)
     if repository is None:
@@ -177,17 +178,21 @@ def main():
             repository.delete()
             sys.exit(1)
     else:
-        if not prepare_local_repository(work_path, args.repo_name, username, password):
+        if not prepare_local_repository(work_path, args.repo_name, username,
+                                        password):
             print('Could not prepare local repository')
             sys.exit(1)
 
+    if days < 1:
+        print('Must specify -d >= 1')
+        sys.exit(1)
     end_date = dt.date.today()
-    start_date = end_date - dt.timedelta(days=args.days)
+    start_date = end_date - dt.timedelta(days=args.days - 1)
 
     commit_times = get_commit_schedule(start_date, end_date)
     os.chdir(repo_path)
-    nouns = ['Airbus', 'Dollar', 'Flintlock', 'Focus', 'Love', 'Orchard', 'Rat',
-             'Trolley', 'Zampone', 'Zoology']
+    nouns = ['Airbus', 'Dollar', 'Flintlock', 'Focus', 'Love', 'Orchard',
+             'Rat', 'Trolley', 'Zampone', 'Zoology']
     for commit in commit_times:
         with open('./README', 'a') as f:
             f.write(str(commit) + '\n')
