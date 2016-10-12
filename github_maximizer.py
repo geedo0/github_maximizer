@@ -141,6 +141,7 @@ def main():
         username = conf.get('credentials', 'username')
         password = conf.get('credentials', 'password')
     except Exception as e:
+        print(e)
         print('Error reading credentials')
         sys.exit(1)
 
@@ -183,7 +184,7 @@ def main():
             print('Could not prepare local repository')
             sys.exit(1)
 
-    if days < 1:
+    if args.days < 1:
         print('Must specify -d >= 1')
         sys.exit(1)
     end_date = dt.date.today()
