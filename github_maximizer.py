@@ -197,17 +197,17 @@ def main():
     for commit in commit_times:
         with open('./README', 'a') as f:
             f.write(str(commit) + '\n')
-        subprocess.call(['git', 'add', 'README'], cwd=repo_path)
+        subprocess.check_call(['git', 'add', 'README'], cwd=repo_path)
         message = "Implements a {:s}".format(random.choice(nouns))
         date_arg = "--date=\"{:s}\"".format(str(commit))
         commit_args = ['git', 'commit', '-m', message, date_arg]
         if args.author is not None:
             commit_args.append('--author=' + args.author)
-        subprocess.call(commit_args, cwd=repo_path)
+        subprocess.check_call(commit_args, cwd=repo_path)
 
     repo_uri = 'https://{0:s}:{1:s}@github.com/{0:s}/{2:s}.git/'.format(
         username, password, args.repo_name)
-    subprocess.call(['git', 'push', repo_uri, 'master'], cwd=repo_path)
+    subprocess.check_call(['git', 'push', repo_uri, 'master'], cwd=repo_path)
     sys.exit()
 
 if __name__ == '__main__':
